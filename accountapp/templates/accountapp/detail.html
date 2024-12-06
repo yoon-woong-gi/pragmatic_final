@@ -28,7 +28,7 @@
             {% else %}
                 {% if target_user == user %}
             <a href={% url 'profileapp:create' %}>
-                <h2 style="font-family: 'Roboto Light',serif" >
+                <h2 >
                 Create Profile
                 </h2>
             </a>
@@ -41,19 +41,34 @@
 
             {%  if target_user == user %}
             <a class="material-icons"
-               style=" border-radius: 10rem; padding: .4rem;"
-                    href="{% url 'accountapp:update' pk=user.pk %}">
-                <p style="margin: 0">
-                    settings
-                </p>
+               style="display: inline-flex; align-items: center; justify-content: center;
+                      box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+                      border-radius: 1rem; /* 둥근 모양 유지 */
+                      padding: 0.35rem 0.5rem; /* 가로 패딩 줄임 */
+                      margin: 1rem 0.12rem; /* 아이콘 간 간격 살짝 줄임 */
+                      font-size: 1.5rem; /* 아이콘 크기 유지 */
+                      background-color: #f9f9f9; /* 버튼 배경색 */
+                      color: #333;
+                      text-decoration: none;
+                      border: 1px solid #ddd;"
+               href="{% url 'accountapp:update' pk=user.pk %}">
+                settings
             </a>
             <a class="material-icons"
-               style="box-shadow: 0 0 2px #000000;  padding: .4rem;"
-                    href="{% url 'accountapp:delete' pk=user.pk %}">
-                <p style="margin: 0">
-                    cancel
-                </p>
+               style="display: inline-flex; align-items: center; justify-content: center;
+                      box-shadow: 0 0 4px rgba(255, 0, 0, 0.1);
+                      border-radius: 1rem; /* 동일한 둥근 모양 */
+                      padding: 0.35rem 0.5rem; /* 가로 패딩 줄임 */
+                      margin: 0.12rem; /* 아이콘 간 간격 살짝 줄임 */
+                      font-size: 1.5rem; /* 아이콘 크기 유지 */
+                      background-color: #ffe6e6; /* 연한 빨강 배경 */
+                      color: #e74c3c;
+                      text-decoration: none;
+                      border: 1px solid #fcc;"
+               href="{% url 'accountapp:delete' pk=user.pk %}">
+                cancel
             </a>
+
             {% endif %}
 
         </div>

@@ -1,24 +1,37 @@
+<div style="border: 1px solid; text-align: left; padding: 4% 3% 2% 4%; margin: 1rem 0; border-radius: 1rem; border-color: #bbb;">
+    <div style="display: flex; align-items: center;">
+        <!-- 프로필 사진 -->
+        {% if comment.writer.profile.image %}
+        <img src="{{ comment.writer.profile.image.url }}" alt="Profile Image"
+             style="width: 40px; height: 40px; border-radius: 50%; margin-right: 1rem;">
+        {% else %}
+        <img src="/static/images/default_profile.png" alt="Default Profile Image"
+             style="width: 40px; height: 40px; border-radius: 50%; margin-right: 1rem;">
+        {% endif %}
 
-
-<div style="border: 1px solid; text-align: left; padding: 4%; margin: 1rem 0;border-radius: 1rem;
-border-color: #bbb;">
-    <div>
-        <strong>
-            {{ comment.writer.profile.nickname }}
-        </strong>
-        &nbsp&nbsp&nbsp
-        {{ comment.created_at }}
+        <!-- 사용자 닉네임 -->
+        <div>
+            <strong>
+                {% if comment.writer.profile.nickname %}
+                    {{ comment.writer.profile.nickname }}
+                {% else %}
+                    Unknown
+                {% endif %}
+            </strong>
+            &nbsp;&nbsp;
+            {{ comment.created_at }}
+        </div>
     </div>
     <div style="margin: 1rem 0">
         {{ comment.content }}
     </div>
     {% if comment.writer == user %}
-    <div style="text-align: right">
-        <a href="{% url 'commentapp:delete' pk=comment.pk%}"
-        class="btn btn-danger rounded-pill">
-            Delete
+    <div style="text-align: right; padding-top: 1rem;">
+        <a class="material-icons"
+           style="color: #666666; font-size: 24px;"
+           href="{% url 'commentapp:delete' pk=comment.pk %}">
+            delete
         </a>
-        
     </div>
     {% endif %}
 </div>
