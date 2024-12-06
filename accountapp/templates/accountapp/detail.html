@@ -41,16 +41,16 @@
 
             {%  if target_user == user %}
             <a class="material-icons"
-               style="box-shadow: 0 0 4px #ccc; border-radius: 10rem; padding: .4rem;"
+               style=" border-radius: 10rem; padding: .4rem;"
                     href="{% url 'accountapp:update' pk=user.pk %}">
-                <p>
+                <p style="margin: 0">
                     settings
                 </p>
             </a>
             <a class="material-icons"
-               style="box-shadow: 0 0 4px #fcc; border-radius: 10rem; padding: .4rem;"
+               style="box-shadow: 0 0 2px #000000;  padding: .4rem;"
                     href="{% url 'accountapp:delete' pk=user.pk %}">
-                <p>
+                <p style="margin: 0">
                     cancel
                 </p>
             </a>
