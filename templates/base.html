@@ -10,13 +10,11 @@
     <hr>
 
     {% for message in messages %}
-
-    <div class="text-center">
-        <div class="btn btn-{{ message.tags }} rounded-pill px-5 my-3">
-            {{ message }}
+        <div class="message-container text-center">
+            <div class="btn btn-{{ message.tags }} rounded-pill px-5 my-3 fade-message">
+                {{ message }}
+            </div>
         </div>
-    </div>
-
     {% endfor %}
 
     {% block content %}
@@ -25,6 +23,43 @@
     <hr>
     {% include 'footer.html' %}
 
+    <!-- JavaScript for fade-out effect -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Select all the messages with the 'fade-message' class
+            var messages = document.querySelectorAll('.fade-message');
+
+            // Loop through each message and apply fade-out after 3 seconds
+            messages.forEach(function(message) {
+                setTimeout(function() {
+                    // Apply fade-out effect
+                    message.style.transition = "opacity 1s ease-out";
+                    message.style.opacity = 0;
+
+                    // After fade-out is complete, remove the message from the DOM
+                    setTimeout(function() {
+                        message.remove();
+                    }, 500); // Remove after 1 second of fading
+                }, 1000); // Delay fade-out for 3 seconds
+            });
+        });
+    </script>
+
+    <style>
+        /* Style for the message container to prevent layout shift */
+        .message-container {
+            position: fixed;  /* Fixed positioning ensures it stays at the top */
+            top: 150px;  /* Adjusted position lower from the top */
+            left: 50%;
+            transform: translateX(-50%); /* Center the message horizontally */
+            z-index: 9999;  /* Make sure the message is on top of everything else */
+        }
+
+        .fade-message {
+            opacity: 1;
+            transition: opacity 1s ease-out;
+        }
+    </style>
 
 </body>
 </html>
