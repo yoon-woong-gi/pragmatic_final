@@ -1,60 +1,132 @@
-{%  extends 'base.html' %}
+{% extends 'base.html' %}
 
-{%  block content %}
+{% block content %}
 
-    <div>
-        <div style="text-align: center; max-width: 700px; margin: 4rem auto;">
-            <h1>
-                {{ target_article.title }}
-            </h1>
-            <div style="height: 2rem;">
+<div>
+    <div style="text-align: center; max-width: 700px; margin: 4rem auto;">
+        <h1>
+            {{ target_article.title }}
+        </h1>
+        <div style="height: 2rem;">
+            <a href="#" id="like-button-{{ target_article.pk }}" onclick="likeArticle({{ target_article.pk }}, event)">
                 {% if target_article.like > 0 %}
-                    <a href="{% url 'likeapp:article_like' pk=target_article.pk %}">
-                        <i style="vertical-align:middle; font-size:1.2rem; color: #f77;"
-                           class="material-icons">
-                           favorite
-                        </i>
-                    </a>
+                    <i style="vertical-align:middle; font-size:1.2rem; color: #f77;" class="material-icons">
+                        favorite
+                    </i>
                 {% else %}
-                    <a href="{% url 'likeapp:article_like' pk=target_article.pk %}">
-                        <i style="vertical-align:middle; font-size:1.2rem; color: #f77;"
-                           class="material-icons">
-                           favorite_border
-                        </i>
-                    </a>
+                    <i style="vertical-align:middle; font-size:1.2rem; color: #f77;" class="material-icons">
+                        favorite_border
+                    </i>
                 {% endif %}
+            </a>
+            <span id="like-count-{{ target_article.pk }}" style="vertical-align: middle; font-size:1.2rem;">
+                {{ target_article.like }}
+            </span>
+        </div>
+        <h5>
+            {{ target_article.writer.profile.nickname }}
+        </h5>
+        <hr>
+        <img style="width: 100%; border-radius: 1rem; margin: 2rem 0;" src="{{ target_article.image.url }}" alt="">
+        <div class="text-left">
+            {{ target_article.content | safe }}
+        </div>
 
-                <span style="vertical-align: middle; font-size:1.2rem;">
-                    {{ target_article.like }}
-                </span>
-            </div>
-            <h5>
-               {{ target_article.writer.profile.nickname }}
-            </h5>
-            <hr>
-            <img style="width: 100%; border-radius: 1rem; margin: 2rem 0;"
-                    src="{{ target_article.image.url }}" alt="">
-            <div class="text-left">
-                {{ target_article.content | safe}}
-            </div>
-
-            {% if target_article.writer == user %}
-            <a href="{% url 'articleapp:update' pk=target_article.pk%}"
-               style="background-color: #747474; border-color: #747474;"
-            class = "btn btn-primary rounded-pill col-3">
+        {% if target_article.writer == user %}
+            <a href="{% url 'articleapp:update' pk=target_article.pk %}"
+               class="btn btn-primary rounded-pill col-3"
+                style="background-color: #747474; border-color: #747474;">
                 Update
             </a>
-            <a href="{% url 'articleapp:delete' pk=target_article.pk%}"
-            class="btn btn-danger rounded-pill col-3">
+            <a href="{% url 'articleapp:delete' pk=target_article.pk %}"
+               class="btn btn-danger rounded-pill col-3">
                 Delete
             </a>
-            {% endif %}
-            <hr>
-            {% for comment in target_article.comment.all %}
-                {% include 'commentapp/detail.html' with comment=comment %}
-            {% endfor %}
-            {% include 'commentapp/create.html' with article=target_article %}
-        </div>
+        {% endif %}
+        <hr>
+        {% for comment in target_article.comment.all %}
+            {% include 'commentapp/detail.html' with comment=comment %}
+        {% endfor %}
+        {% include 'commentapp/create.html' with article=target_article %}
     </div>
+</div>
+
+<script>
+    function likeArticle(pk, event) {
+        // Prevent the default action of the anchor tag (no page reload)
+        event.preventDefault();
+
+        // Send AJAX request to like the article
+        fetch(`/likeapp/article/like/${pk}/`, {
+            method: 'GET',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);  // Log the response from the server
+
+            // Update the like button icon based on the response
+            const likeButton = document.getElementById(`like-button-${pk}`);
+            const likeCount = document.getElementById(`like-count-${pk}`);
+
+            if (data.status === 'liked') {
+                likeButton.innerHTML =
+                    `<i style="vertical-align:middle; font-size:1.2rem; color: #f77;" class="material-icons">favorite</i>`;
+            } else {
+                likeButton.innerHTML =
+                    `<i style="vertical-align:middle; font-size:1.2rem; color: #f77;" class="material-icons">favorite_border</i>`;
+            }
+
+            // Update the like count
+            likeCount.innerText = data.like_count;
+
+            // Display the success message
+            displayMessage(data.message);
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    // Function to get the CSRF token from the cookie
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Function to display the message
+    function displayMessage(message) {
+        const messageContainer = document.createElement('div');
+        messageContainer.classList.add('text-center', 'message-container');
+
+        // Create the message element and set its text content
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('btn', 'btn-success', 'rounded-pill', 'px-5', 'my-3', 'fade-message');
+        messageElement.textContent = message;  // Use textContent to ensure the message is treated as plain text
+
+        // Append the message element to the container
+        messageContainer.appendChild(messageElement);
+        document.body.appendChild(messageContainer);
+
+        // Apply fade-out effect after 3 seconds
+        setTimeout(() => {
+            messageElement.style.opacity = '0';  // Start fade-out
+            messageElement.style.transition = 'opacity 1s ease-out';  // Smooth transition
+            setTimeout(() => {
+                messageContainer.remove();  // Remove the message from DOM after fade-out
+            }, 1000);  // Remove after 1 second of fading
+        }, 1000);  // Delay fade-out by 3 seconds
+    }
+</script>
 
 {% endblock %}

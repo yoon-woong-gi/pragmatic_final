@@ -2,29 +2,28 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.http import HttpResponseRedirect
+from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
-
-# Create your views here.
 from django.urls import reverse
 from django.utils.decorators import method_decorator
-from django.views.generic import RedirectView
+from django.views import View  # Use View instead of RedirectView
 
 from articleapp.models import Article
 from likeapp.models import LikeRecord
 
+
 @transaction.atomic
 def toggle_like(user, article):
-    # user가 article에 대해 이미 좋아요한 기록이 있는지 확인
+    # Check if the user has already liked the article
     like_record = LikeRecord.objects.filter(user=user, article=article)
     if like_record.exists():
-        # 이미 좋아요를 눌렀으므로 이번에는 "좋아요 취소"
+        # User has already liked the article, so un-like it
         article.like -= 1
         article.save()
         like_record.delete()
         return 'unliked'
     else:
-        # 아직 좋아요가 없으므로 "좋아요 추가"
+        # User has not liked the article, so like it
         article.like += 1
         article.save()
         LikeRecord(user=user, article=article).save()
@@ -32,20 +31,23 @@ def toggle_like(user, article):
 
 
 @method_decorator(login_required, 'get')
-class LikeArticleView(RedirectView):
-    def get_redirect_url(self, *args, **kwargs):
-        return reverse('articleapp:detail', kwargs={'pk': kwargs['pk']})
-
-    def get(self, *args, **kwargs):
-        user = self.request.user
+class LikeArticleView(View):  # Changed to View
+    def get(self, request, *args, **kwargs):  # Use 'request' here
+        user = request.user  # Access user from request object
         article = get_object_or_404(Article, pk=kwargs['pk'])
 
-        # toggle_like 함수 호출로 좋아요 상태 토글
+        # Toggle like functionality
         result = toggle_like(user, article)
+
+        # Prepare the response data
         if result == 'liked':
-            messages.add_message(self.request, messages.SUCCESS, '좋아요가 반영되었습니다.')
+            message = '좋아요가 반영되었습니다.'
         else:
-            messages.add_message(self.request, messages.SUCCESS, '좋아요가 취소되었습니다.')
+            message = '좋아요가 취소되었습니다.'
 
-        return super(LikeArticleView, self).get(self.request, *args, **kwargs)
-
+        # Return the updated like count and message as JSON
+        return JsonResponse({
+            'status': result,
+            'like_count': article.like,
+            'message': message
+        })
