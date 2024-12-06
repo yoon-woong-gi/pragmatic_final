@@ -38,14 +38,14 @@
 
     {% else %}
     <div class="text-center">
-        <h1>No Projects YET!</h1>
+        <h1>No Board</h1>
     </div>
     {% endif %}
 
     {% include 'snippets/pagination.html' with page_obj=page_obj %}
     <div style="text-align: center">
         <a href="{% url 'projectapp:create' %}" class="btn btn-dark rounded-pill mt-3 mb-3 px-2">
-            Create Project
+            Create Board
         </a>
     </div>
 
